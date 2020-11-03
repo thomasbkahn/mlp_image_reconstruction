@@ -17,9 +17,11 @@ x make train script, save checkpoints
 - mabel pic experiments
 	x 256 x 5
 	x 4 layers x 256, except last is 512
-	- 64 x 10
-	- 256 x 5, 2x scale factor input
+	x 64 x 10
+	x 256 x 5, 2x scale factor input
+	- 16 x 20
 - do Goya, Saturn
+- parallel processing on reconstruction
 
 - pretrain on 1 image, partially train on another (need to specify init checkpoint)
 - learning rate scheduling

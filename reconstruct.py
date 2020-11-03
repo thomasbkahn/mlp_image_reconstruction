@@ -61,14 +61,16 @@ if __name__ == "__main__":
   checkpoint_dirs = [
     # "/home/tk/data/mlp_image_reconstruction_checkpoints/mabel_ithaca_experiment_big_run/mode_HSV",
     # "/home/tk/data/mlp_image_reconstruction_checkpoints/mabel_ithaca_experiment_big_run/mode_RGB",
-    "/shed/data/mlp_image_reconstruction_checkpoints/tom_cykana_pic/mode_RGB",
-    "/shed/data/mlp_image_reconstruction_checkpoints/tom_cykana_pic/mode_HSV",
+    # "/shed/data/mlp_image_reconstruction_checkpoints/tom_cykana_pic/mode_RGB",
+    # "/shed/data/mlp_image_reconstruction_checkpoints/tom_cykana_pic/mode_HSV",
+    "/shed/data/mlp_image_reconstruction_checkpoints/tom_cykana_pic_256x5",
   ]
-  output_dirs = [
-    # "/home/tk/data/mlp_image_reconstruction_output/mabel_ithaca_experiment_big_run/mode_HSV",
-    # "/home/tk/data/mlp_image_reconstruction_output/mabel_ithaca_experiment_big_run/mode_RGB",
-    "/shed/data/mlp_image_reconstruction_output/tom_cykana_pic/mode_RGB",
-    "/shed/data/mlp_image_reconstruction_output/tom_cykana_pic/mode_HSV",
-  ]
-  for checkpoint_dir, output_dir in zip(checkpoint_dirs, output_dirs):
+  for checkpoint_dir in checkpoint_dirs:
+    checkpoint_dir = Path(checkpoint_dir)
+    output_dir_parts = []
+    for part in checkpoint_dir.parts:
+      output_dir_parts.append(part.replace("reconstruction_checkpoints", "reconstruction_output"))
+
+    output_dir = Path().joinpath(*output_dir_parts)
+
     reconstruct_directory(checkpoint_dir, output_dir, hallucination_buffer=100)

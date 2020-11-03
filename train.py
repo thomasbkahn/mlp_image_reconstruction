@@ -30,25 +30,27 @@ if __name__ == "__main__":
   img_path = "/shed/photo/export/watkins_glen_camping_aug2020/instagram/0003_DSC07470.png"
   # img_path = "/home/tk/Downloads/IMG_20201102_004831_183.jpg"
 
-  dataset_args_common = dict(
-    path = img_path,
-    scale_factor = 0.1
-    #scale_factor = 0.3
-  )
-  #modes = ["HSV", "RGB"]
-  modes = ["RGB"]#, "HSV"]
-
   hidden_unit_dict = {
     "256x5": [256] * 5,
     "final512": [256] * 3 + [512]
   }
 
+  dataset_args_all = {
+    "tom_cykana_pic_256x5": {"path": "/home/tk/Downloads/IMG_20201102_004831_183.jpg", "scale_factor": 0.3, "mode":"RGB"},
+    "mabel_ithaca_64x10": {"path": "/shed/photo/export/watkins_glen_camping_aug2020/instagram/0003_DSC07470.png", "scale_factor":0.1, "mode":"RGB"},
+    "mabel_ithaca_256x5_scale02": {"path": "/shed/photo/export/watkins_glen_camping_aug2020/instagram/0003_DSC07470.png", "scale_factor":0.2, "mode":"RGB"},
+    "goya_saturn": {"path": "/home/tk/Downloads/goya_saturn.jpg", "scale_factor":0.2, "mode":"RGB"},
+  }
+
+  hidden_unit_dict = {
+    "tom_cykana_pic_256x5": [256] * 5,
+    "mabel_ithaca_64x10": [64] * 10,
+    "mabel_ithaca_256x5_scale02": [256] * 5,
+    "goya_saturn": [256] * 5
+  }
 
 
-  for mode in modes:
-    dataset_args = dataset_args_common.copy()
-    dataset_args["mode"] = mode
-    for expt_name, hidden_units in hidden_unit_dict.items():
-      checkpoint_dir = base_checkpoint_dir.joinpath(f"mabel_ithaca_experiment_{expt_name}")
-      main(dataset_args, checkpoint_dir, hidden_units, num_epochs=300, use_gpu=True)
+  for expt_name, hidden_units in hidden_unit_dict.items():
+    checkpoint_dir = base_checkpoint_dir.joinpath(expt_name)
+    main(dataset_args_all[expt_name], checkpoint_dir, hidden_units, num_epochs=300, use_gpu=True)
 
