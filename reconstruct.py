@@ -26,12 +26,15 @@ def evaluate_model(checkpoint, n_x, n_y, x_lims, y_lims, batch_size=256):
   return output
 
 
-def reconstruct_single(checkpoint, hallucination_buffer=None):
+def reconstruct_single(checkpoint, hallucination_buffer=None, scale_factor=None):
   if isinstance(checkpoint, Path) or isinstance(checkpoint, str):
-    checkpoint = torch.load(checkpoint)
+    checkpoint = torch.load(checkpoint, map_location=torch.device("cpu"))
   if hallucination_buffer is None:
     hallucination_buffer = 0
   n_y, n_x = checkpoint["source_image_size"]
+  if scale_factor is not None:
+      n_y = int(round(n_y * scale_factor))
+      n_x = int(round(n_x * scale_factor))
   # get the amount of original image range per pixel
   fac_y = 1.0 / n_y
   fac_x = 1.0 / n_x
@@ -56,12 +59,16 @@ def reconstruct_directory(checkpoint_dir, output_dir, hallucination_buffer=None,
 
 if __name__ == "__main__":
   checkpoint_dirs = [
-    "/home/tk/data/mlp_image_reconstruction_checkpoints/mabel_ithaca_experiment_big_run/mode_HSV",
-    "/home/tk/data/mlp_image_reconstruction_checkpoints/mabel_ithaca_experiment_big_run/mode_RGB",
+    # "/home/tk/data/mlp_image_reconstruction_checkpoints/mabel_ithaca_experiment_big_run/mode_HSV",
+    # "/home/tk/data/mlp_image_reconstruction_checkpoints/mabel_ithaca_experiment_big_run/mode_RGB",
+    "/shed/data/mlp_image_reconstruction_checkpoints/tom_cykana_pic/mode_RGB",
+    "/shed/data/mlp_image_reconstruction_checkpoints/tom_cykana_pic/mode_HSV",
   ]
   output_dirs = [
-    "/home/tk/data/mlp_image_reconstruction_output/mabel_ithaca_experiment_big_run/mode_HSV",
-    "/home/tk/data/mlp_image_reconstruction_output/mabel_ithaca_experiment_big_run/mode_RGB",
+    # "/home/tk/data/mlp_image_reconstruction_output/mabel_ithaca_experiment_big_run/mode_HSV",
+    # "/home/tk/data/mlp_image_reconstruction_output/mabel_ithaca_experiment_big_run/mode_RGB",
+    "/shed/data/mlp_image_reconstruction_output/tom_cykana_pic/mode_RGB",
+    "/shed/data/mlp_image_reconstruction_output/tom_cykana_pic/mode_HSV",
   ]
   for checkpoint_dir, output_dir in zip(checkpoint_dirs, output_dirs):
     reconstruct_directory(checkpoint_dir, output_dir, hallucination_buffer=100)

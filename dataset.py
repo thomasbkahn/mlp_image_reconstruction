@@ -38,10 +38,10 @@ class PhotoArrayDataset(Dataset):
   def _load_image(self, path):
     self.path = path
     img = cv2.imread(path)
-    h, w, _ = img.shape
-    new_h = int(h * self.scale_factor)
-    new_w = int(w * self.scale_factor)
-    img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_AREA)
+    # h, w, _ = img.shape
+    # new_h = int(h * self.scale_factor)
+    # new_w = int(w * self.scale_factor)
+    img = cv2.resize(img, None, fx=self.scale_factor, fy=self.scale_factor, interpolation=cv2.INTER_AREA)
     if self.mode == "HSV":
       img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     elif self.mode == "RGB":
