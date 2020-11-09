@@ -25,7 +25,7 @@ class MLPReconstructionTrainer(object):
     self.checkpoint_dir = checkpoint_dir
     self.batch_size = batch_size
     self.dataloader = DataLoader(self.dataset, batch_size=batch_size, shuffle=True, drop_last=True,
-                                 num_workers=4)
+                                 num_workers=8)
     if self.use_gpu:
       self.model = self.model.cuda()
     self.opt = torch.optim.Adam(self.model.parameters())
