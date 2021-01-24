@@ -26,50 +26,75 @@ class CoordinateArrayDataset(Dataset):
 
 
 
-class PhotoArrayDataset(Dataset):
-
-  def __init__(self, path, mode="RGB", encoding_config=None, scale_factor=0.1):
+class MultiPhotoArrayDataset(Dataset):
+  
+  def __init__(self, paths, mode="RGB", encoding_config=None, scale_factor=0.1, force_common_size=True):
     self.mode = mode
+    self.paths = paths
     self.scale_factor = scale_factor
     self.encoding_config = encoding_config
-    self._load_image(path)
+    self.force_common_size = force_common_size
+    self._load_images(paths)
     self._build_tensors()
 
   def _load_image(self, path):
-    self.path = path
     img = cv2.imread(path)
-    # h, w, _ = img.shape
-    # new_h = int(h * self.scale_factor)
-    # new_w = int(w * self.scale_factor)
-    img = cv2.resize(img, None, fx=self.scale_factor, fy=self.scale_factor, interpolation=cv2.INTER_AREA)
+    if self.force_common_size and self.img_arrays:
+      # we want to force common size AND have already loaded at least one image
+      h, w, _ = self.img_arrays[0].shape
+      img = cv2.resize(img, (w, h), interpolation=cv2.INTER_AREA)
+    else:
+      # either we don't want to force common size or this is the
+      # first image (which defines the size of the rest)
+      img = cv2.resize(img, None, fx=self.scale_factor, fy=self.scale_factor, interpolation=cv2.INTER_AREA)
     if self.mode == "HSV":
       img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     elif self.mode == "RGB":
       img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     else:
       raise NotImplementedError
-    self.img_array = img
+    return img
+
+  def _load_images(self, paths):
+    self.img_arrays = []
+    for path in paths:
+        self.img_arrays.append(self._load_image(path))
+
+  def _concat_and_make_tensor(self, arrays):
+    return torch.tensor(np.concatenate(arrays, axis=0), dtype=torch.float32)
 
   def _build_tensors(self):
-    h, w, _ = self.img_array.shape
-    self.h = h
-    self.w = w
-    X = build_coordinate_array((0, 1), (0, 1), w, h)
-    # y = np.linspace(0, 1, h)
-    # x = np.linspace(0, 1, w)
-    # xx, yy = np.meshgrid(x, y)
-    # X = np.stack([xx, yy], axis=-1)
-    # if self.encoding_config is not None:
-    #   a = self.encoding_config["a_vals"]
-    #   b = self.encoding_config["b_vals"]
-    #   X = np.concatenate([a * np.sin((2.*np.pi*X) @ b.T), a * np.cos((2.*np.pi*X) @ b.T)], axis=-1)
+    pixels = []
+    features = []
+    weights = []
+    img_sizes = []
+    n_images = len(self.img_arrays)
+    for img_ind, img_array in enumerate(self.img_arrays):
+      h, w, _ = img_array.shape
+      img_sizes.append((h, w))
+      X = build_coordinate_array((0, 1), (0, 1), w, h)
+      features.append(X.reshape(h * w, -1))
+      pixels.append(img_array.reshape(h * w, -1))
+      weights_img = np.zeros((features[-1].shape[0], n_images), dtype=np.float64)
+      weights_img[:, img_ind] = 1.0
+      weights.append(weights_img)
     tensors = {}
-    tensors["features"] = torch.tensor(X.reshape(h * w, -1), dtype=torch.float32)
-    tensors["pixels"] = torch.tensor(self.img_array.reshape(h * w, -1), dtype=torch.float32)
+    tensors["features"] = self._concat_and_make_tensor(features)
+    tensors["pixels"] = self._concat_and_make_tensor(pixels)
+    tensors["weights"] = self._concat_and_make_tensor(weights)
     self.tensors = tensors
+    self.image_sizes = img_sizes
 
   def __len__(self):
     return self.tensors["features"].shape[0]
 
   def __getitem__(self, ind):
     return {key: tensor[ind] for key, tensor in self.tensors.items()}
+
+    
+class PhotoArrayDataset(MultiPhotoArrayDataset):
+  # TODO change this to subclass multi case, just drop weight key
+
+  def __init__(self, path, mode="RGB", encoding_config=None, scale_factor=0.1):
+    paths = [path]
+    super(PhotoArrayDataset, self).__init__(paths, mode, encoding_config, scale_factor)
