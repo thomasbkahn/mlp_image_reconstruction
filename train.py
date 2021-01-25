@@ -24,18 +24,26 @@ if __name__ == "__main__":
   base_checkpoint_dir = Path("/shed/data/mlp_image_reconstruction_checkpoints/")
 
   dataset_args_all = {
-    "ac_beach_the_family_duplex": {
+    "ac_beach_set_of_eight": {
       "paths": [
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0008_DSC08949.png',
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0009_DSC08976.png',
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0010_DSC09041.png',
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0011_DSC09073.png',
         '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0012_DSC09130.png',
-        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0013_DSC09148.png'
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0013_DSC09148.png',
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0014_DSC09477.png',
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0015_DSC09503.png'
       ],
       "mode": "RGB",
       "scale_factor": 0.1,
       "force_common_size": True
     },
-    "ac_beach_the_family_single_test": {
+    "ac_beach_set_of_three": {
       "paths": [
-        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0012_DSC09130.png'
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0008_DSC08949.png',
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0010_DSC09041.png',
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0011_DSC09073.png',
       ],
       "mode": "RGB",
       "scale_factor": 0.1,
@@ -43,14 +51,21 @@ if __name__ == "__main__":
     },
   }
 
-  dataset_args_all["ac_beach_the_family_duplex_bigger_head"] = dataset_args_all["ac_beach_the_family_duplex"].copy()
+  copy_keys = [
+      ("ac_beach_set_of_eight", "ac_beach_set_of_eight_bigger_head"),
+      ("ac_beach_set_of_eight", "ac_beach_set_of_eight_bigger_model"),
+  ]
+
+  for src_key, dest_key in copy_keys:
+    dataset_args_all[dest_key] = dataset_args_all[src_key].copy()
 
   hidden_unit_dict = {
-    "ac_beach_the_family_duplex": ([256], [256] * 4),
-    "ac_beach_the_family_duplex_bigger_head": ([256] * 2, [256] * 3),
-    "ac_beach_the_family_single_test": ([256], [256] * 4)
+    "ac_beach_set_of_eight": ([256] * 2, [256] * 3),
+    "ac_beach_set_of_eight_bigger_head": ([256] * 3, [256] * 2),
+    "ac_beach_set_of_eight_bigger_model": ([256] * 3, [256] * 4),
+    "ac_beach_set_of_three": ([256] * 2, [256] * 3),
+    
   }
-
 
 
   for expt_name, hidden_units in hidden_unit_dict.items():
