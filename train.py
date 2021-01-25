@@ -6,8 +6,10 @@ from trainer import MLPReconstructionTrainer
 from trainer import log as trainer_log
 
 
-def main(dataset_args, checkpoint_dir, hidden_units, num_epochs=200, use_gpu=False):
-  trainer = MLPReconstructionTrainer(dataset_args, checkpoint_dir, hidden_units, use_gpu=use_gpu)
+def main(dataset_args, checkpoint_dir, hidden_units_heads, hidden_units_core,
+         num_epochs=200, use_gpu=False):
+  trainer = MLPReconstructionTrainer(dataset_args, checkpoint_dir, hidden_units_heads,
+                                     hidden_units_core, use_gpu=use_gpu)
   trainer.train(num_epochs)
 
 
@@ -20,40 +22,40 @@ if __name__ == "__main__":
   trainer_log.addHandler(consoleHandler)
 
   base_checkpoint_dir = Path("/shed/data/mlp_image_reconstruction_checkpoints/")
-  # base_checkpoint_dir = base_checkpoint_dir.joinpath("mabel_ithaca_experiment_tiny_mlp")
-  # base_checkpoint_dir = base_checkpoint_dir.joinpath("tom_cykana_pic")
-
-
-  # hidden_units = [256] * 4
-  # hidden_units = [16] * 4
-  # hidden_units = [64] * 4
-  # img_path = "/shed/photo/export/watkins_glen_camping_aug2020/instagram/0003_DSC07470.png"
-  # img_path = "/home/tk/Downloads/IMG_20201102_004831_183.jpg"
 
   dataset_args_all = {
-    # "tom_cykana_pic_256x5": {"path": "/home/tk/Downloads/IMG_20201102_004831_183.jpg", "scale_factor": 0.3, "mode":"RGB"},
-    # "mabel_ithaca_64x10": {"path": "/shed/photo/export/watkins_glen_camping_aug2020/instagram/0003_DSC07470.png", "scale_factor":0.1, "mode":"RGB"},
-    # "mabel_ithaca_256x5_scale02": {"path": "/shed/photo/export/watkins_glen_camping_aug2020/instagram/0003_DSC07470.png", "scale_factor":0.2, "mode":"RGB"},
-    # "goya_saturn": {"path": "/home/tk/Downloads/goya_saturn.jpg", "scale_factor":0.2, "mode":"RGB"},
-    "mabel_ithaca_16x30": {"path": "/shed/photo/export/watkins_glen_camping_aug2020/instagram/0003_DSC07470.png", "scale_factor":0.1, "mode":"RGB"},
-    "mabel_ithaca_16x20": {"path": "/shed/photo/export/watkins_glen_camping_aug2020/instagram/0003_DSC07470.png", "scale_factor":0.1, "mode":"RGB"},
-    "mabel_ithaca_32x20": {"path": "/shed/photo/export/watkins_glen_camping_aug2020/instagram/0003_DSC07470.png", "scale_factor":0.1, "mode":"RGB"},
-    "mabel_ithaca_32x10": {"path": "/shed/photo/export/watkins_glen_camping_aug2020/instagram/0003_DSC07470.png", "scale_factor":0.1, "mode":"RGB"},
+    "ac_beach_the_family_duplex": {
+      "paths": [
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0012_DSC09130.png',
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0013_DSC09148.png'
+      ],
+      "mode": "RGB",
+      "scale_factor": 0.1,
+      "force_common_size": True
+    },
+    "ac_beach_the_family_single_test": {
+      "paths": [
+        '/shed/photo/export/atlantic_city_thanksgiving_nov2020/album/0012_DSC09130.png'
+      ],
+      "mode": "RGB",
+      "scale_factor": 0.1,
+      "force_common_size": True
+    },
   }
 
+  dataset_args_all["ac_beach_the_family_duplex_bigger_head"] = dataset_args_all["ac_beach_the_family_duplex"].copy()
+
   hidden_unit_dict = {
-    # "tom_cykana_pic_256x5": [256] * 5,
-    # "mabel_ithaca_64x10": [64] * 10,
-    # "mabel_ithaca_256x5_scale02": [256] * 5,
-    # "goya_saturn": [256] * 5
-    "mabel_ithaca_16x30": [16] * 30,
-    "mabel_ithaca_16x20": [16] * 20,
-    "mabel_ithaca_32x20": [32] * 20,
-    "mabel_ithaca_32x10": [32] * 10
+    "ac_beach_the_family_duplex": ([256], [256] * 4),
+    "ac_beach_the_family_duplex_bigger_head": ([256] * 2, [256] * 3),
+    "ac_beach_the_family_single_test": ([256], [256] * 4)
   }
+
 
 
   for expt_name, hidden_units in hidden_unit_dict.items():
     checkpoint_dir = base_checkpoint_dir.joinpath(expt_name)
-    main(dataset_args_all[expt_name], checkpoint_dir, hidden_units, num_epochs=300, use_gpu=True)
+    hidden_units_heads, hidden_units_core = hidden_units
+    main(dataset_args_all[expt_name], checkpoint_dir, hidden_units_heads, hidden_units_core,
+         num_epochs=300, use_gpu=True)
 

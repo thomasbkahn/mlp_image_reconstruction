@@ -29,7 +29,7 @@ class MLPReconstructionTrainer(object):
     model_args = dict(in_units=self.dataset.tensors["features"].shape[1],
                       n_heads=n_heads, hidden_units_heads=hidden_units_heads,
                       hidden_units_core=hidden_units_core,
-                      output_targets=self.dataset.tensors["pixels"].shape[1]))
+                      output_targets=self.dataset.tensors["pixels"].shape[1])
     self.model_args = model_args
     self.model = MultiHeadMLP(**model_args)
     self.use_gpu = use_gpu
@@ -51,7 +51,7 @@ class MLPReconstructionTrainer(object):
     checkpoint_data = dict(
       output_mode = self.dataset.mode,
       source_image_paths = self.dataset.paths,
-      source_image_sizes = self.dataset.img_sizes,
+      source_image_sizes = self.dataset.image_sizes,
       feature_encoding_config = self.dataset.encoding_config,
       model_args = self.model_args,
       model_state = self.model.state_dict(),

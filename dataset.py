@@ -9,20 +9,26 @@ from utils import build_coordinate_array
 
 class CoordinateArrayDataset(Dataset):
 
-  def __init__(self, n_x, n_y, x_lims=(0,1), y_lims=(0,1), encoding_config=None):
+  def __init__(self, n_x, n_y, x_lims=(0,1), y_lims=(0,1), encoding_config=None, head_weights=None):
     self.encoding_config = encoding_config
     self.n_x = n_x
     self.n_y = n_y
     self.x_lims = x_lims
     self.y_lims = y_lims
-    X = build_coordinate_array(x_lims, y_lims, n_x, n_y, encoding_config)
-    self.X = torch.tensor(X.reshape(n_x * n_y, -1), dtype=torch.float32)
+    X = build_coordinate_array(x_lims, y_lims, n_x, n_y, encoding_config).reshape(n_x * n_y, -1)
+    if head_weights is None:
+      head_weights = [1.0]
+    weights = np.repeat(np.array(head_weights).reshape(1, -1), X.shape[0], axis=0)
+    tensors = {}
+    tensors["features"] = torch.tensor(X, dtype=torch.float32)
+    tensors["weights"] = torch.tensor(weights, dtype=torch.float32)
+    self.tensors = tensors
 
   def __len__(self):
-    return self.X.shape[0]
+    return self.tensors["features"].shape[0]
 
   def __getitem__(self, ind):
-    return {"features": self.X[ind]}
+    return {key: tensor[ind] for key, tensor in self.tensors.items()}
 
 
 
