@@ -4,12 +4,14 @@ import cv2
 import numpy as np
 
 
-from utils import build_coordinate_array
+from utils import build_coordinate_array, BASIC_CONFIG
 
 
 class CoordinateArrayDataset(Dataset):
 
   def __init__(self, n_x, n_y, x_lims=(0,1), y_lims=(0,1), encoding_config=None, head_weights=None):
+    if encoding_config == "basic":
+        encoding_config = BASIC_CONFIG
     self.encoding_config = encoding_config
     self.n_x = n_x
     self.n_y = n_y
@@ -38,6 +40,9 @@ class MultiPhotoArrayDataset(Dataset):
     self.mode = mode
     self.paths = paths
     self.scale_factor = scale_factor
+    if encoding_config == "basic":
+        encoding_config = BASIC_CONFIG
+
     self.encoding_config = encoding_config
     self.force_common_size = force_common_size
     self._load_images(paths)
@@ -78,7 +83,7 @@ class MultiPhotoArrayDataset(Dataset):
     for img_ind, img_array in enumerate(self.img_arrays):
       h, w, _ = img_array.shape
       img_sizes.append((h, w))
-      X = build_coordinate_array((0, 1), (0, 1), w, h)
+      X = build_coordinate_array((0, 1), (0, 1), w, h, encoding_config=self.encoding_config)
       features.append(X.reshape(h * w, -1))
       pixels.append(img_array.reshape(h * w, -1))
       weights_img = np.zeros((features[-1].shape[0], n_images), dtype=np.float64)

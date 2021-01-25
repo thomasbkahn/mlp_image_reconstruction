@@ -1,12 +1,19 @@
 import numpy as np
 import cv2
 
+BASIC_CONFIG = dict(
+  b_vals = np.eye(2),
+  a_vals = np.ones(2) 
+)
+
+
 def apply_encoding(X_in, config):
   if config is None:
     return X_in
   a = config["a_vals"]
   b = config["b_vals"]
-  return  np.concatenate([a * np.sin((2.*np.pi*X) @ b.T), a * np.cos((2.*np.pi*X) @ b.T)], axis=-1)
+  # X = X_in.reshape(-1, 2)
+  return  np.concatenate([a * np.sin((2.*np.pi*X_in) @ b.T), a * np.cos((2.*np.pi*X_in) @ b.T)], axis=-1)
 
 
 def build_coordinate_array(x_lims, y_lims, n_x, n_y, encoding_config=None):
