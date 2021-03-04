@@ -14,3 +14,6 @@ avals = np.ones((bvals.shape[0]))
 
 - learning rate scheduling
 - leaky relu
+
+# Github
+- add example results / animations
