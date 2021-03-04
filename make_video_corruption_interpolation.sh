@@ -6,5 +6,5 @@
 # ffmpeg -framerate 30 -i $1/*.png -c:v libx264 -pix_fmt yuv420p -crf 12 -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" $2
 
 # arg 2 should end in .mkv for first case
-ffmpeg -framerate 10 -pattern_type glob -i "$1/*.png" -c:v copy $2
+ffmpeg -framerate 30 -pattern_type glob -i "$1/*.png" -c:v copy $2
 # ffmpeg -framerate 30 -i $1/*.png -c:v libx264 -pix_fmt yuv420p -crf 12 -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" $2
